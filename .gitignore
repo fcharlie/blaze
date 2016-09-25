@@ -1,0 +1,7 @@
+build/
+.vscode/*.db
+*.pdb
+*.exe
+*.obj
+*.res
+*.BROWSE.VC*

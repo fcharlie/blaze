@@ -1,0 +1,1 @@
+Launch gpedit.msc (i.e. the group policy editor) and add the account(s) to Computer configuration\Windows Setting\Security Settings\Local Policies\User Rights Assignment\Create symbolic links.

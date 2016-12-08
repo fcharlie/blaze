@@ -152,6 +152,9 @@
     <ClCompile Include="blaze-mk.cc" />
     <ClCompile Include="rescle.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="blaze-mk.manifest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

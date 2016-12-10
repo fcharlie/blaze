@@ -33,6 +33,7 @@ bool IsWindowsCurrentBuildNumberOrGreaterEx(DWORD buildNumber) {
   auto bn = wcstol(buffer, &w, 10);
   return (bn >= buildNumber);
 }
+
 bool IsWindowsVersionOrGreaterEx2(WORD wMajorVersion, WORD wMinorVersion,
                                   DWORD buildNumber) {
   const wchar_t *currentVersion =
@@ -82,9 +83,9 @@ bool IsWindowsVersionOrGreaterEx2(WORD wMajorVersion, WORD wMinorVersion,
         result = false;
     }
   }
-}
-CloseLab : RegCloseKey(hKey);
-return result;
+CloseLab:
+  RegCloseKey(hKey);
+  return result;
 }
 
 /// say must add manifest
@@ -118,10 +119,7 @@ static bool PtrCreateSymbolicLink(const wchar_t *file, const wchar_t *target) {
 class Symboliclink {
 public:
 private:
-  bool InitializeSymboliclink() {
-    ///
-    return true;
-  }
+  bool InitializeSymboliclink() { return true; }
 };
 
 bool SymbolicLink(const std::wstring &sources, const std::wstring &target) {

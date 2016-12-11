@@ -1,4 +1,10 @@
-Launch gpedit.msc (i.e. the group policy editor) and add the account(s) to Computer configuration\Windows Setting\Security Settings\Local Policies\User Rights Assignment\Create symbolic links.
+See TechNet: https://technet.microsoft.com/en-us/itpro/windows/keep-secure/create-symbolic-links
+Launch gpedit.msc (i.e. the group policy editor) and add the account(s) to
+Computer configuration\Windows Setting\Security Settings\Local Policies\User Rights Assignment\Create symbolic links.
+
+SeCreateSymbolicLinkPrivilege
+
+URL: https://github.com/git-for-windows/git/wiki/Symbolic-Links
 
 Starting with Windows 10 Insiders build 14972, symlinks can be created without needing to elevate the console as administrator.
 https://blogs.windows.com/buildingapps/2016/12/02/symlinks-windows-10/#xHKjqTCzf5Wm6f7e.97

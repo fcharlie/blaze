@@ -1,6 +1,7 @@
 #ifndef BLAZE_PACKAGE_HPP
 #define BLAZE_PACKAGE_HPP
 #include <string>
+#include <unordered_map>
 
 inline bool IsAlphaNum(int c) {
   return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
@@ -147,15 +148,38 @@ private:
   ///
 };
 
-struct PackageInstalled{
-    std::string name;
+struct LocalPackage{
+	std::wstring version;
+	std::wstring installtime;
     bool enable;
 };
 
-struct PackageSourced{
-    std::string name;
-    std::string version;
-    std::string url;
+struct RemotePackage{
+    std::wstring name;
+    std::wstring version;
+    std::wstring url;
+};
+
+class Repositories {
+public:
+	Repositories(const Repositories &) = delete;
+	Repositories &operator=(const Repositories&) = delete;
+	bool Initialize(const wchar_t *rfile);
+private:
+
+};
+
+class RepositoriesInstalled {
+public:
+	RepositoriesInstalled()
+	{
+		////
+	}
+	RepositoriesInstalled(const RepositoriesInstalled&) = delete;
+	RepositoriesInstalled& operator=(const RepositoriesInstalled&) = delete;
+	bool Discover(const wchar_t *rdfile);
+private:
+	std::unordered_map<std::wstring, LocalPackage> packages;
 };
 
 #endif

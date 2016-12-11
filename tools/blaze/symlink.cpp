@@ -1,6 +1,7 @@
 ////
 #include <Windows.h>
 #include <string>
+#include <functional>
 
 /// On Windows 14972, CreateSymbolicLink not require Administrator
 
@@ -118,11 +119,31 @@ static bool PtrCreateSymbolicLink(const wchar_t *file, const wchar_t *target) {
 
 class Symboliclink {
 public:
+  Symboliclink() {
+    ///
+    InitializeSymboliclink();
+  }
+  bool BlazeCreateSymbolicLinkImpl(const wchar_t *file, const wchar_t *target) {
+    if (symFun)
+      return symFun(file, target);
+    return false;
+  }
+
 private:
-  bool InitializeSymboliclink() { return true; }
+  bool InitializeSymboliclink() {
+    //
+    if (IsWindowsCurrentBuildNumberOrGreaterEx(14972)) {
+      symFun = &PtrCreateSymbolicLink;
+    } else {
+    }
+    return true;
+  }
+
+  std::function<bool(const wchar_t *, const wchar_t *)> symFun;
 };
 
-bool SymbolicLink(const std::wstring &sources, const std::wstring &target) {
-  ///
-  return true;
+bool BlazeCreateSymbolicLink(const std::wstring &sources,
+                             const std::wstring &target) {
+  static Symboliclink symlink;
+  return symlink.BlazeCreateSymbolicLinkImpl(sources.c_str(), target.c_str());
 }

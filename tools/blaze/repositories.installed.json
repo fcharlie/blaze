@@ -1,0 +1,17 @@
+{
+    "Title": "Blaze Installed Package Test",
+    "Packages": [
+        {
+            "name": "blaze",
+            "version": "1.0.0.1",
+            "enable": true,
+            "date": "2016-12-11 20:32:30"
+        },
+        {
+            "name": "MinGit",
+            "version": "1.0.0.1",
+            "enable": true,
+            "date": "2016-12-11 19:07:30"
+        }
+    ]
+}

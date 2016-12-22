@@ -151,7 +151,7 @@ private:
 struct LocalPackage{
 	std::wstring version;
 	std::wstring installtime;
-    bool enable;
+	bool enable{ false };
 };
 
 struct RemotePackage{

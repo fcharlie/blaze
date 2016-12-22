@@ -21,17 +21,17 @@ bool IsWindowsCurrentBuildNumberOrGreaterEx(DWORD buildNumber) {
       ERROR_SUCCESS) {
     return false;
   }
-  WCHAR buffer[256];
+  WCHAR buffer[256] = { 0 };
   DWORD type = 0;
   DWORD dwSize = sizeof(buffer);
   if (RegGetValueW(hKey, nullptr, L"CurrentBuildNumber", RRF_RT_REG_SZ, &type,
-                   buffer, &dwSize) != ERROR_SUCCESS) {
+                   &buffer[0], &dwSize) != ERROR_SUCCESS) {
     RegCloseKey(hKey);
     return false;
   }
   RegCloseKey(hKey);
   wchar_t *w;
-  auto bn = wcstol(buffer, &w, 10);
+  auto bn = wcstoul(&buffer[0], &w, 10);
   return (bn >= buildNumber);
 }
 
@@ -45,7 +45,7 @@ bool IsWindowsVersionOrGreaterEx2(WORD wMajorVersion, WORD wMinorVersion,
       ERROR_SUCCESS) {
     return false;
   }
-  DWORD wMajor, wMinor;
+  DWORD wMajor=0, wMinor=0;
   DWORD type = 0;
   DWORD dwSizeM = sizeof(DWORD);
   if (RegGetValueW(hKey, nullptr, L"CurrentMajorVersionNumber", RRF_RT_DWORD,
@@ -59,15 +59,15 @@ bool IsWindowsVersionOrGreaterEx2(WORD wMajorVersion, WORD wMinorVersion,
     result = false;
     goto CloseLab;
   }
-  WCHAR buffer[32];
+  WCHAR buffer[32] = {0};
   DWORD dwSize = sizeof(buffer);
   if (RegGetValueW(hKey, nullptr, L"CurrentBuildNumber", RRF_RT_REG_SZ, &type,
-                   buffer, &dwSize) != ERROR_SUCCESS) {
+                   &buffer[0], &dwSize) != ERROR_SUCCESS) {
     result = false;
     goto CloseLab;
   }
   wchar_t *w;
-  auto bn = wcstol(buffer, &w, 10);
+  auto bn = wcstoul(&buffer[0], &w, 10);
   if (wMajor > wMajorVersion) {
     result = true;
   } else if (wMajor < wMajorVersion) {

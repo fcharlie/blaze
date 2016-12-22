@@ -4,6 +4,7 @@
 #include <pathcch.h>
 #include <VersionHelpers.h>
 #include <wchar.h>
+#include <array>
 #include "rescle.h"
 
 #define IDS_BLAZELINK_TARGET 128
@@ -32,7 +33,6 @@ private:
   DWORD lastError;
   LPWSTR buf;
   bool release_;
-  char reserved[sizeof(intptr_t) - sizeof(bool)];
 };
 
 struct BlazeApp {
@@ -43,14 +43,14 @@ struct BlazeApp {
 };
 
 bool GetOriginBlazeLink(std::wstring &blazelink) {
-  WCHAR buffer[PATHCCH_MAX_CCH];
-  auto n = GetModuleFileNameW(nullptr, buffer, PATHCCH_MAX_CCH);
+  std::array<wchar_t,PATHCCH_MAX_CCH> buffer;
+  auto n = GetModuleFileNameW(nullptr, &buffer[0], PATHCCH_MAX_CCH);
   if (n == 0)
     return false;
-  if (PathRemoveFileSpecW(buffer)) {
-    wcscat_s(buffer, L"\\blaze-link.exe");
-    if (PathFileExistsW(buffer)) {
-      blazelink.assign(buffer);
+  if (PathRemoveFileSpecW(&buffer[0])) {
+    wcscat_s(&buffer[0],buffer.size(), L"\\blaze-link.exe");
+    if (PathFileExistsW(&buffer[0])) {
+      blazelink.assign(buffer.data());
       return true;
     }
   }

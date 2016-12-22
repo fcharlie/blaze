@@ -18,7 +18,7 @@ bool Repositories::Initialize(const wchar_t *rfile) {
     return false;
   }
   char buffer[4096];
-  FileReadStream bis(fp, buffer, sizeof(buffer));
+  FileReadStream bis(fp, &buffer[0], sizeof(buffer));
   AutoUTFInputStream<unsigned, FileReadStream> eis(bis);
   if (doc.ParseStream<0, AutoUTF<unsigned>>(eis).HasParseError()) {
     return false;
@@ -34,7 +34,7 @@ bool RepositoriesInstalled::Discover(const wchar_t *rdfile) {
     return false;
   }
   char buffer[4096];
-  FileReadStream bis(fp, buffer, sizeof(buffer));
+  FileReadStream bis(fp, &buffer[0], sizeof(buffer));
   AutoUTFInputStream<unsigned, FileReadStream> eis(bis);
   if (doc.ParseStream<0, AutoUTF<unsigned>>(eis).HasParseError()) {
     return false;
@@ -50,7 +50,7 @@ bool RepositoriesInstalled::Discover(const wchar_t *rdfile) {
    {"name":"package name","enable":true,"version":"1.0.0"}
   */
   auto Ay = iter->value.GetArray();
-  for (const auto &a : Ay) {
+  for (auto &a : Ay) {
     if (!a.IsObject())
       continue;
     auto it = a.FindMember(L"name");
@@ -78,5 +78,6 @@ bool RepositoriesInstalled::Discover(const wchar_t *rdfile) {
   for (auto &p : packages) {
 	  wprintf(L"install %s\ttime: %s\tversion: %s\n", p.first.c_str(), p.second.installtime.c_str(), p.second.version.c_str());
   }
+  /////
   return true;
 }

@@ -192,6 +192,8 @@ FakesAssemblies/
 
 build/
 .vscode/*.db
+*.db
+*.opendb
 *.pdb
 *.exe
 *.obj

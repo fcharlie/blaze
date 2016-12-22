@@ -6,71 +6,93 @@
 #include <Shlobj.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <locale.h>
+//#include <locale.h>
 #include "blaze-link.h"
 
 #pragma comment(lib, "shell32")
 
+size_t StringLength(const wchar_t *s) {
+  const wchar_t *a;
+  for (a = s; *s; s++)
+    ;
+  return s - a;
+}
+
+wchar_t *StringCopy(wchar_t *d, const wchar_t *s) {
+  wchar_t *a = d;
+  while ((*d++ = *s++))
+    ;
+  return a;
+}
+
 class StringBuffer {
 public:
-  StringBuffer() : m_size(0), m_data(nullptr) {}
+  StringBuffer() : m_capability(0), m_data(nullptr) {}
   StringBuffer(StringBuffer &&other) {
     m_data = other.m_data;
     other.m_data = nullptr;
+    m_capability = other.m_capability;
+    other.m_capability = 0;
     m_size = other.m_size;
     other.m_size = 0;
   }
   StringBuffer(size_t n) {
     m_data = new wchar_t[n];
-    m_size = n;
+    m_capability = n;
+    m_size = 0;
   }
   ~StringBuffer() {
     if (m_data) {
       delete[] m_data;
     }
   }
-  size_t sync(const StringBuffer &other) {
-    if (m_data) {
-      delete[] m_data;
-    }
-    m_size = wcslen(other.m_data) + 1;
-    m_data = new wchar_t[m_size];
-    wcscpy_s(m_data, m_size, other.m_data);
-    return m_size;
+  StringBuffer &transfer(StringBuffer &&other) {
+    m_data = other.m_data;
+    other.m_data = nullptr;
+    m_capability = other.m_capability;
+    other.m_capability = 0;
+    m_size = other.m_size;
+    other.m_size = 0;
+    return *this;
   }
-  size_t size() const { return m_size; }
+  bool append(const wchar_t *cstr) {
+    auto l = StringLength(cstr);
+    if (l > m_capability - m_size)
+      return false;
+    StringCopy(m_data + m_size, cstr);
+    m_size += l;
+    return true;
+  }
+  size_t capability() const { return m_capability; }
   wchar_t *data() { return m_data; }
 
 private:
   wchar_t *m_data;
+  size_t m_capability;
   size_t m_size;
 };
 
-bool CheckSpace(const wchar_t *str) {
-  for (; *str; str++)
-    if (*str == L' ')
-      return true;
-  return false;
-}
-
 class IconCache {
 public:
-  IconCache() : n(0) {}
+  enum { kIconMaxSize = 20 };
+  IconCache() { size = 0; }
   ~IconCache() {
-    for (UINT8 i = 1; i < n && i < 20; i++) {
+    for (unsigned i = 0; i < size; i++) {
       DestroyIcon(icons[i]);
     }
   }
   void PushIcon(HICON icon) {
-    if (n < 19) {
-      icons[n] = icon;
-      n++;
+    if (size < kIconMaxSize) {
+      icons[size] = icon;
+      size++;
+    } else {
+      DestroyIcon(icon);
     }
   }
 
 private:
-  HICON icons[20];
-  UINT8 n;
+  HICON icons[kIconMaxSize];
+  unsigned size;
 };
 
 bool UpdateConsoleIcon(const wchar_t *target) {
@@ -122,6 +144,18 @@ bool SubsystemIsConsole(const wchar_t *target) {
   return false;
 }
 
+// size_t StringCopy(wchar_t *)
+//
+// size_t StringLength(const wchar_t *s) {
+//
+//}
+
+bool DoCheckSpace(const wchar_t *s) {
+  for (; *s && *s != L' '; s++)
+    ;
+  return *s ? true : false;
+}
+
 bool BlazeLinkCreateCMD(const wchar_t *target, StringBuffer &cmd) {
   int Argc = 0;
   auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
@@ -129,25 +163,26 @@ bool BlazeLinkCreateCMD(const wchar_t *target, StringBuffer &cmd) {
     return false;
   }
   StringBuffer buffer(0x8000);
-  if (CheckSpace(target)) {
-    wcscpy_s(buffer.data(), buffer.size(), L"\"");
-    wcscat_s(buffer.data(), buffer.size(), target);
-    wcscat_s(buffer.data(), buffer.size(), L"\" ");
+
+  if (DoCheckSpace(target)) {
+    wcscpy_s(buffer.data(), buffer.capability(), L"\"");
+    wcscat_s(buffer.data(), buffer.capability(), target);
+    wcscat_s(buffer.data(), buffer.capability(), L"\" ");
   } else {
-    wcscpy_s(buffer.data(), buffer.size(), target);
-    wcscat_s(buffer.data(), buffer.size(), L" ");
+    wcscpy_s(buffer.data(), buffer.capability(), target);
+    wcscat_s(buffer.data(), buffer.capability(), L" ");
   }
   for (int i = 1; i < Argc; i++) {
-    if (CheckSpace(Argv[i])) {
-      wcscpy_s(buffer.data(), buffer.size(), L"\"");
-      wcscat_s(buffer.data(), buffer.size(), Argv[i]);
-      wcscat_s(buffer.data(), buffer.size(), L"\" ");
+    if (DoCheckSpace(Argv[i])) {
+      buffer.append(L"\"");
+      buffer.append(Argv[i]);
+      buffer.append(L"\" ");
     } else {
-      wcscat_s(buffer.data(), buffer.size(), Argv[i]);
-      wcscat_s(buffer.data(), buffer.size(), L" ");
+      buffer.append(Argv[i]);
+      buffer.append(L" ");
     }
   }
-  cmd.sync(buffer);
+  cmd.transfer(reinterpret_cast<StringBuffer &&>(buffer));
   LocalFree(Argv);
   return true;
 }
@@ -186,13 +221,13 @@ bool DiscoverTargetApp(StringBuffer &app) {
   auto hInstance = GetModuleHandleW(nullptr);
   StringBuffer buffer(8192);
   auto n = LoadStringW(hInstance, IDS_BLAZELINK_TARGET, buffer.data(),
-                       (int)buffer.size());
+                       (int)buffer.capability());
   if (n != 0) {
     StringBuffer cmd(0x8000);
-    auto l =
-        ExpandEnvironmentStringsW(buffer.data(), cmd.data(), (DWORD)cmd.size());
+    auto l = ExpandEnvironmentStringsW(buffer.data(), cmd.data(),
+                                       (DWORD)cmd.capability());
     if (l != 0) {
-      app.sync(cmd);
+      app.transfer(reinterpret_cast<StringBuffer &&>(cmd));
       return true;
     }
   }

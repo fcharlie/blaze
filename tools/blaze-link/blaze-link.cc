@@ -64,7 +64,11 @@ public:
     return true;
   }
   size_t capability() const { return m_capability; }
-  wchar_t *data() { return m_data; }
+  wchar_t *data() { 
+	  if (m_size < m_capability) {
+		  m_data[m_size] = 0;
+	  }
+	  return m_data; }
 
 private:
   wchar_t *m_data;

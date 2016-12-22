@@ -37,13 +37,13 @@ public:
     other.m_size = 0;
   }
   StringBuffer(size_t n) {
-    m_data = new wchar_t[n];
+    m_data = (wchar_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(wchar_t) * n);
     m_capability = n;
     m_size = 0;
   }
   ~StringBuffer() {
     if (m_data) {
-      delete[] m_data;
+      HeapFree(GetProcessHeap(), 0, m_data);
     }
   }
   StringBuffer &transfer(StringBuffer &&other) {
@@ -64,11 +64,18 @@ public:
     return true;
   }
   size_t capability() const { return m_capability; }
-  wchar_t *data() { 
-	  if (m_size < m_capability) {
-		  m_data[m_size] = 0;
-	  }
-	  return m_data; }
+  size_t setsize(size_t sz) {
+    if (m_size == 0)
+      m_size = sz;
+    return m_size;
+  }
+  const wchar_t *data() const {
+    if (m_size < m_capability && m_size != 0) {
+      m_data[m_size] = 0;
+    }
+    return m_data;
+  }
+  wchar_t *data() { return m_data; }
 
 private:
   wchar_t *m_data;
@@ -169,12 +176,12 @@ bool BlazeLinkCreateCMD(const wchar_t *target, StringBuffer &cmd) {
   StringBuffer buffer(0x8000);
 
   if (DoCheckSpace(target)) {
-    wcscpy_s(buffer.data(), buffer.capability(), L"\"");
-    wcscat_s(buffer.data(), buffer.capability(), target);
-    wcscat_s(buffer.data(), buffer.capability(), L"\" ");
+    buffer.append(L"\"");
+    buffer.append(target);
+    buffer.append(L"\" ");
   } else {
-    wcscpy_s(buffer.data(), buffer.capability(), target);
-    wcscat_s(buffer.data(), buffer.capability(), L" ");
+    buffer.append(target);
+    buffer.append(L" ");
   }
   for (int i = 1; i < Argc; i++) {
     if (DoCheckSpace(Argv[i])) {
@@ -227,10 +234,12 @@ bool DiscoverTargetApp(StringBuffer &app) {
   auto n = LoadStringW(hInstance, IDS_BLAZELINK_TARGET, buffer.data(),
                        (int)buffer.capability());
   if (n != 0) {
+    buffer.setsize(n);
     StringBuffer cmd(0x8000);
     auto l = ExpandEnvironmentStringsW(buffer.data(), cmd.data(),
                                        (DWORD)cmd.capability());
     if (l != 0) {
+      cmd.setsize(l);
       app.transfer(reinterpret_cast<StringBuffer &&>(cmd));
       return true;
     }

@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="console.cpp" />
     <ClCompile Include="download.cpp" />
     <ClCompile Include="driver.cpp" />
     <ClCompile Include="install.cpp" />

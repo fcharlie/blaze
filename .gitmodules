@@ -1,3 +1,6 @@
 [submodule "vendor/rapidjson"]
 	path = vendor/rapidjson
 	url = https://github.com/miloyip/rapidjson.git
+[submodule "utilities/zlib"]
+	path = vendor/zlib
+	url = https://github.com/madler/zlib.git

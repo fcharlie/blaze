@@ -18,9 +18,23 @@ size_t StringLength(const wchar_t *s) {
   return s - a;
 }
 
+wchar_t * StringSearchW(
+	const wchar_t * string,
+	wchar_t ch
+)
+{
+	while (*string && *string != (wchar_t)ch)
+		string++;
+
+	if (*string == (wchar_t)ch)
+		return((wchar_t *)string);
+	return(NULL);
+}
+
+
 wchar_t *StringCopy(wchar_t *d, const wchar_t *s) {
   wchar_t *a = d;
-  while ((*d++ = *s++))
+  while ((*d++ = *s++)!=0)
     ;
   return a;
 }
@@ -155,13 +169,7 @@ bool SubsystemIsConsole(const wchar_t *target) {
   return false;
 }
 
-// size_t StringCopy(wchar_t *)
-//
-// size_t StringLength(const wchar_t *s) {
-//
-//}
-
-bool DoCheckSpace(const wchar_t *s) {
+bool IsSpaceExists(const wchar_t *s) {
   for (; *s && *s != L' '; s++)
     ;
   return *s ? true : false;
@@ -175,7 +183,7 @@ bool BlazeLinkCreateCMD(const wchar_t *target, StringBuffer &cmd) {
   }
   StringBuffer buffer(0x8000);
 
-  if (DoCheckSpace(target)) {
+  if (IsSpaceExists(target)) {
     buffer.append(L"\"");
     buffer.append(target);
     buffer.append(L"\" ");
@@ -184,7 +192,7 @@ bool BlazeLinkCreateCMD(const wchar_t *target, StringBuffer &cmd) {
     buffer.append(L" ");
   }
   for (int i = 1; i < Argc; i++) {
-    if (DoCheckSpace(Argv[i])) {
+    if (IsSpaceExists(Argv[i])) {
       buffer.append(L"\"");
       buffer.append(Argv[i]);
       buffer.append(L"\" ");

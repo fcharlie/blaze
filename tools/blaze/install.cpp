@@ -1,6 +1,6 @@
 
 #include <Windows.h>
-
+#include <functional>
 /*
 BOOLEAN
 WINAPI
@@ -219,3 +219,20 @@ bool AddPackageToLink(const wchar_t *pkg, const wchar_t *target) {
   //CreateSymbolicLinkW()
   return true;
 }
+
+
+//class DecompressArchiveRegister {
+//public:
+//	DecompressArchiveRegister(){}
+//	DecompressArchiveRegister(){}
+//private:
+//	
+//};
+
+//bool Decompress(const wchar_t *format) {
+//	const wchar_t* knownFormats[] = { L"7zip", L"gnutar", L"pax", L"paxr", L"zip" };
+//	bool known = std::find(std::begin(knownFormats), std::end(knownFormats),
+//		format) != std::end(knownFormats);
+//
+//	return true;
+//}

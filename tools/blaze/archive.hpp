@@ -8,6 +8,7 @@
 bool MsiDecompressArchive(const std::wstring &msifile, const std::wstring &dir);
 bool ZipDecompressArchive(const std::wstring &file, const std::wstring &dir);
 bool BZipDecompressArchive(const std::wstring &file, const std::wstring &dir);
+bool ExtensionDecompressArchive(const std::wstring &msifile, const std::wstring &dir);
 
 class BlazeArchive {
 public:

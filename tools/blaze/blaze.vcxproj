@@ -169,6 +169,7 @@
     <ClCompile Include="msi.cpp" />
     <ClCompile Include="packages.cpp" />
     <ClCompile Include="repositories.cpp" />
+    <ClCompile Include="strings.cpp" />
     <ClCompile Include="symlink.cpp" />
     <ClCompile Include="zip.cpp" />
   </ItemGroup>

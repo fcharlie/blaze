@@ -3,6 +3,7 @@
 #include <cstring>
 #include "blaze.hpp"
 #include "package.hpp"
+#include "archive.hpp"
 /*
 blaze Windows Portable Package Manager
 Usage: blaze [command] [arguments] [commom-options]
@@ -73,6 +74,9 @@ int ProcessMain(int Argc, wchar_t **Argv) {
 
 int wmain(int argc,wchar_t **argv){
     ///
+	if (argc >= 3) {
+		ZipDecompressArchive(argv[1], argv[2]);
+	}
 	PrintUsage();
 	RepositoriesInstalled rid;
 	rid.Discover(L"repositories.installed.json");

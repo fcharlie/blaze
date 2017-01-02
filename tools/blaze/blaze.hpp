@@ -7,6 +7,54 @@
 #include <cstdint>
 #include <functional>
 
+class BzStringA {
+public:
+	BzStringA(const wchar_t *wstr, int cp = CP_UTF8);
+	BzStringA(const wchar_t *wstr, size_t length, int cp = CP_UTF8);
+	BzStringA(const BzStringA &other) = delete;
+	BzStringA(BzStringA &&other) {
+		Release();
+		data_ = other.data_;
+		size_ = other.size_;
+		other.data_ = nullptr;
+		other.size_ = 0;
+	}
+	~BzStringA();
+
+	const char *data()const {
+		return data_;
+	}
+	size_t size()const { return size_; }
+private:
+	void Release();
+	char *data_;
+	size_t size_;
+};
+
+
+class BzString {
+public:
+	BzString(const char *str, int cp = CP_UTF8);
+	BzString(const char *str, size_t length, int cp = CP_UTF8);
+	BzString(const BzString &other)=delete;
+	BzString(BzString &&other) {
+		Release();
+		data_ = other.data_;
+		size_ = other.size_;
+		other.data_ = nullptr;
+		other.size_ = 0;
+	}
+	~BzString();
+	const wchar_t *data()const {
+		return data_;
+	}
+	size_t size()const { return size_; }
+private:
+	void Release();
+	wchar_t *data_;
+	size_t size_;
+};
+
 struct BlazeProgress {
 	bool(*impl)(void *data, std::uint32_t rate, std::uint64_t bytes);
 	void *userdate;
@@ -14,7 +62,7 @@ struct BlazeProgress {
 
 class BlazeManager {
 private:
-  void Finalize();
+  void Finalize(){}
 };
 
 

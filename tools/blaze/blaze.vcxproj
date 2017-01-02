@@ -71,23 +71,23 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\vendor\zlib;$(ProjectDir)..\..\vendor\zlib\contrib\minizip;$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\vendor\zlib;$(ProjectDir)..\..\vendor\zlib\contrib\minizip;$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\vendor\zlib;$(ProjectDir)..\..\vendor\zlib\contrib\minizip;$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\vendor\zlib;$(ProjectDir)..\..\vendor\zlib\contrib\minizip;$(ProjectDir)..\..\vendor\rapidjson\include;$(IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
@@ -159,16 +159,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="archive.cpp" />
+    <ClCompile Include="bzip.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="download.cpp" />
     <ClCompile Include="driver.cpp" />
+    <ClCompile Include="extinstaller.cpp" />
     <ClCompile Include="install.cpp" />
-    <ClCompile Include="msiinstaller.cpp" />
+    <ClCompile Include="msi.cpp" />
     <ClCompile Include="packages.cpp" />
     <ClCompile Include="repositories.cpp" />
     <ClCompile Include="symlink.cpp" />
+    <ClCompile Include="zip.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="archive.hpp" />
     <ClInclude Include="blaze.hpp" />
     <ClInclude Include="download.hpp" />
     <ClInclude Include="package.hpp" />
@@ -181,6 +186,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\zlib\zlib.vcxproj">
+      <Project>{4b54aa88-ab68-41c4-b954-3e3c2003a34a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

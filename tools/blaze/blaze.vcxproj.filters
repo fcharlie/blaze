@@ -24,9 +24,6 @@
     <ClCompile Include="install.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="msiinstaller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="repositories.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,6 +36,21 @@
     <ClCompile Include="console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="extinstaller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="msi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blaze.hpp">
@@ -48,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="package.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="archive.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

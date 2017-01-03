@@ -10,7 +10,7 @@ BzStringA::BzStringA(const wchar_t *wstr, int cp) {
 	if (data_ == nullptr)
 		return;
 	data_[unicodeLen] = 0;
-	::WideCharToMultiByte(CP_UTF8, 0, wstr, -1, data_, unicodeLen, NULL, NULL);
+	::WideCharToMultiByte(cp, 0, wstr, -1, data_, unicodeLen, NULL, NULL);
 	size_ = unicodeLen;
 }
 
@@ -24,7 +24,7 @@ BzStringA::BzStringA(const wchar_t* wstr, size_t length, int cp) {
 	if (data_ == nullptr)
 		return;
 	data_[unicodeLen] = 0;
-	::WideCharToMultiByte(CP_UTF8, 0, wstr, length, data_, unicodeLen, NULL, NULL);
+	::WideCharToMultiByte(cp, 0, wstr, length, data_, unicodeLen, NULL, NULL);
 	size_ = unicodeLen;
 }
 

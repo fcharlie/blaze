@@ -75,6 +75,7 @@ set(LIBUNRARSOURCES
     ${LIBUNRAR}/unpack.cpp
     ${LIBUNRAR}/volume.cpp
     ${LIBUNRAR}/dll.rc
+    ${LIBUNRAR}/dll.def
 )
 
 set(rc_flags "/r /c1252")

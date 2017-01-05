@@ -8,6 +8,7 @@ bool BlazeArchive::Initialize()
 	decompressProvider.insert(std::pair<const wchar_t *, DecompressImpl>(L"msi", MsiDecompressArchive));
 	decompressProvider.insert(std::pair<const wchar_t *, DecompressImpl>(L"zip", ZipDecompressArchive));
 	decompressProvider.insert(std::pair<const wchar_t *, DecompressImpl>(L"bzip", BZipDecompressArchive));
+	decompressProvider.insert(std::pair<const wchar_t *, DecompressImpl>(L"rar", RarDecompressArchive));
 	return true;
 }
 

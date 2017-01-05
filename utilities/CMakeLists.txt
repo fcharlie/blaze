@@ -1,61 +1,90 @@
 # rar library
 
-add_compile_options(-DRARDL)
+add_compile_options(-DRARDLL)
 add_compile_options(-DUNRAR)
 add_compile_options(-DSILENT)
+add_compile_options(-D_CRT_SECURE_NO_DEPRECATE)
+add_compile_options(-D_CRT_NONSTDC_NO_DEPRECATE)
 
-set(LIBRAR rar)
-    # <ClCompile Include="archive.cpp" />
-    # <ClCompile Include="arcread.cpp" />
-    # <ClCompile Include="blake2s.cpp" />
-    # <ClCompile Include="cmddata.cpp" />
-    # <ClCompile Include="consio.cpp" />
-    # <ClCompile Include="crc.cpp" />
-    # <ClCompile Include="crypt.cpp" />
-    # <ClCompile Include="dll.cpp" />
-    # <ClCompile Include="encname.cpp" />
-    # <ClCompile Include="errhnd.cpp" />
-    # <ClCompile Include="extinfo.cpp" />
-    # <ClCompile Include="extract.cpp" />
-    # <ClCompile Include="filcreat.cpp" />
-    # <ClCompile Include="file.cpp" />
-    # <ClCompile Include="filefn.cpp" />
-    # <ClCompile Include="filestr.cpp" />
-    # <ClCompile Include="find.cpp" />
-    # <ClCompile Include="getbits.cpp" />
-    # <ClCompile Include="global.cpp">
-    #  <ClCompile Include="hash.cpp" />
-    # <ClCompile Include="headers.cpp" />
-    # <ClCompile Include="isnt.cpp" />
-    # <ClCompile Include="match.cpp" />
-    # <ClCompile Include="options.cpp" />
-    # <ClCompile Include="pathfn.cpp" />
-    # <ClCompile Include="qopen.cpp" />
-    # <ClCompile Include="rar.cpp" />
-    # <ClCompile Include="rarpch.cpp">
-    # <ClCompile Include="rarvm.cpp" />
-    # <ClCompile Include="rawread.cpp" />
-    # <ClCompile Include="rdwrfn.cpp" />
-    # <ClCompile Include="rijndael.cpp" />
-    # <ClCompile Include="rs.cpp" />
-    # <ClCompile Include="rs16.cpp" />
-    # <ClCompile Include="scantree.cpp" />
-    # <ClCompile Include="secpassword.cpp" />
-    # <ClCompile Include="sha1.cpp" />
-    # <ClCompile Include="sha256.cpp" />
-    # <ClCompile Include="smallfn.cpp" />
-    # <ClCompile Include="strfn.cpp" />
-    # <ClCompile Include="strlist.cpp" />
-    # <ClCompile Include="system.cpp" />
-    # <ClCompile Include="threadpool.cpp" />
-    # <ClCompile Include="timefn.cpp" />
-    # <ClCompile Include="ui.cpp" />
-    # <ClCompile Include="unicode.cpp" />
-    # <ClCompile Include="unpack.cpp" />
-    # <ClCompile Include="volume.cpp" />
-    # <ResourceCompile Include="dll.rc" />
-add_library(unrar SHARED 
-    ${LIBRAR}/archive.cpp
-    ${LIBRAR}/arcread.cpp
-    ${LIBRAR}
+MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar)
+  IF(MSVC)
+    GET_FILENAME_COMPONENT(PrecompiledBasename ${PrecompiledHeader} NAME_WE)
+    SET(PrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/${PrecompiledBasename}.pch")
+    SET(Sources ${${SourcesVar}})
+
+    SET_SOURCE_FILES_PROPERTIES(${PrecompiledSource}
+                                PROPERTIES COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_OUTPUTS "${PrecompiledBinary}")
+    SET_SOURCE_FILES_PROPERTIES(${Sources}
+                                PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /FI\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_DEPENDS "${PrecompiledBinary}")  
+    # Add precompiled header to SourcesVar
+    LIST(APPEND ${SourcesVar} ${PrecompiledSource})
+  ENDIF(MSVC)
+ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+
+set(LIBUNRAR unrar)
+
+set(LIBUNRARSOURCES
+    ${LIBUNRAR}/archive.cpp
+    ${LIBUNRAR}/arcread.cpp
+    ${LIBUNRAR}/blake2s.cpp
+    ${LIBUNRAR}/cmddata.cpp
+    ${LIBUNRAR}/consio.cpp
+    ${LIBUNRAR}/crc.cpp
+    ${LIBUNRAR}/crypt.cpp
+    ${LIBUNRAR}/dll.cpp
+    ${LIBUNRAR}/encname.cpp
+    ${LIBUNRAR}/errhnd.cpp
+    ${LIBUNRAR}/extinfo.cpp
+    ${LIBUNRAR}/extract.cpp
+    ${LIBUNRAR}/filcreat.cpp
+    ${LIBUNRAR}/file.cpp
+    ${LIBUNRAR}/filefn.cpp
+    ${LIBUNRAR}/filestr.cpp
+    ${LIBUNRAR}/find.cpp
+    ${LIBUNRAR}/getbits.cpp
+    ${LIBUNRAR}/global.cpp
+    ${LIBUNRAR}/hash.cpp
+    ${LIBUNRAR}/headers.cpp
+    ${LIBUNRAR}/isnt.cpp
+    ${LIBUNRAR}/match.cpp
+    ${LIBUNRAR}/options.cpp
+    ${LIBUNRAR}/pathfn.cpp
+    ${LIBUNRAR}/qopen.cpp
+    ${LIBUNRAR}/rar.cpp
+    ${LIBUNRAR}/rarpch.cpp
+    ${LIBUNRAR}/rarvm.cpp
+    ${LIBUNRAR}/rawread.cpp
+    ${LIBUNRAR}/rdwrfn.cpp
+    ${LIBUNRAR}/rijndael.cpp
+    ${LIBUNRAR}/rs.cpp
+    ${LIBUNRAR}/rs16.cpp
+    ${LIBUNRAR}/scantree.cpp
+    ${LIBUNRAR}/secpassword.cpp
+    ${LIBUNRAR}/sha1.cpp
+    ${LIBUNRAR}/sha256.cpp
+    ${LIBUNRAR}/smallfn.cpp
+    ${LIBUNRAR}/strfn.cpp
+    ${LIBUNRAR}/strlist.cpp
+    ${LIBUNRAR}/system.cpp
+    ${LIBUNRAR}/threadpool.cpp
+    ${LIBUNRAR}/timefn.cpp
+    ${LIBUNRAR}/ui.cpp
+    ${LIBUNRAR}/unicode.cpp
+    ${LIBUNRAR}/unpack.cpp
+    ${LIBUNRAR}/volume.cpp
+    ${LIBUNRAR}/dll.rc
 )
+
+set(rc_flags "/r /c1252")
+set(CMAKE_RC_FLAGS ${rc_flags})
+ADD_MSVC_PRECOMPILED_HEADER("rar.hpp" "rarpch.cpp" ${LIBUNRARSOURCES})
+
+add_library(unrar SHARED 
+    ${LIBUNRARSOURCES}
+)
+# if (MSVC)
+#    set_target_properties(unrar PROPERTIES COMPILE_FLAGS "/Yurar.hpp")
+#    set_source_files_properties(dll.cpp PROPERTIES COMPILE_FLAGS "/Ycrar.hpp")
+# endif(MSVC)

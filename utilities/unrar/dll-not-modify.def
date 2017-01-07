@@ -5,10 +5,8 @@ EXPORTS
   RARReadHeader
   RARReadHeaderEx
   RARProcessFile
-  RARProcessFileW
   RARSetCallback
   RARSetChangeVolProc
   RARSetProcessDataProc
   RARSetPassword
   RARGetDllVersion
-

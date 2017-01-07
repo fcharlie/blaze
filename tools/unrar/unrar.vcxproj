@@ -312,6 +312,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\utilities\unrar\dll.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\utilities\unrar\dll.def" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -168,6 +168,7 @@
     <ClCompile Include="install.cpp" />
     <ClCompile Include="msi.cpp" />
     <ClCompile Include="packages.cpp" />
+    <ClCompile Include="rar.cpp" />
     <ClCompile Include="repositories.cpp" />
     <ClCompile Include="strings.cpp" />
     <ClCompile Include="symlink.cpp" />

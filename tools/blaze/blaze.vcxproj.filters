@@ -54,6 +54,9 @@
     <ClCompile Include="strings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blaze.hpp">

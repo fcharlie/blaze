@@ -179,6 +179,7 @@
     <ClInclude Include="blaze.hpp" />
     <ClInclude Include="download.hpp" />
     <ClInclude Include="package.hpp" />
+    <ClInclude Include="unrar.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="blaze.manifest" />
@@ -190,6 +191,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\unrar\unrar.vcxproj">
+      <Project>{e815c46c-36c4-499f-bbc2-e772c6b17971}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{4b54aa88-ab68-41c4-b954-3e3c2003a34a}</Project>
     </ProjectReference>

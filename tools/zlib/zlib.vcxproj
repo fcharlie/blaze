@@ -142,9 +142,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\vendor\zlib\adler32.c" />
     <ClCompile Include="..\..\vendor\zlib\compress.c" />
     <ClCompile Include="..\..\vendor\zlib\contrib\minizip\ioapi.c" />

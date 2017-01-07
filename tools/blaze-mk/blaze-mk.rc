@@ -2,7 +2,7 @@
 //
 #include "windows.h"
 
-#define COPYRIGHT L"Copyright \xA9 2016 Force Charlie. All Rights Reserved."
+#define COPYRIGHT L"Copyright \xA9 2017 Force Charlie. All Rights Reserved."
 
 IDI_MAIN_ICON ICON "blaze-mk.ico"
 

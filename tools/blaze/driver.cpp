@@ -1,6 +1,7 @@
 //// Blaze
 #include <cstdint>
 #include <cstring>
+#include <unordered_map>
 #include "blaze.hpp"
 #include "package.hpp"
 #include "archive.hpp"
@@ -130,43 +131,43 @@ int ExternalCommand(const wchar_t *cmd, int Argc, wchar_t **Argv) {
 
 /// initialize environment
 bool blazeinit() {
-	///
-	return true;
+  ///
+  return true;
 }
 
 int wmain(int argc, wchar_t **argv) {
-	BuiltinCommand cmds[] = {
-		//// built in commands
-		{ L"search", blazesearch },
-		{ L"help", blazehelp }, /// help command
-		{ L"list", blazelist }, ////
-		{ L"sync", blazesync },
-		{ L"update", blazeupdate },
-		{ L"install", blazeinstall },
-		{ L"uninstall", blazeuninstall },
-		{ L"initialize", blazeinitialize },
-		{ L"uninitialize", blazeuninitialize }
-		///
-	};
-	auto Isbuiltin = [&](const wchar_t *cmd_) -> decltype(cmds[0].impl) {
-		for (auto &c : cmds) {
-			if (wcscmp(c.cmd, cmd_) == 0)
-				return c.impl;
-		}
-		return nullptr;
-	};
-	for (int i = 1; i < argc; i++) {
-		auto ArgX = argv[i];
-		if (ArgX[0] == '-') {
+  typedef int (*CommandMain)(int, wchar_t **);
+  std::unordered_map<const wchar_t *, CommandMain, WCharHash, WCharCompare>
+      cmds = {
+          //// built in commands
+          {L"search", blazesearch},
+          {L"help", blazehelp}, /// help command
+          {L"list", blazelist}, ////
+          {L"sync", blazesync},
+          {L"update", blazeupdate},
+          {L"install", blazeinstall},
+          {L"uninstall", blazeuninstall},
+          {L"initialize", blazeinitialize},
+          {L"uninitialize", blazeuninitialize}
+          ///
+      };
+  auto Isbuiltin = [&](const wchar_t *cmd_) -> CommandMain {
+    auto iter = cmds.find(cmd_);
+    if (iter == cmds.end())
+      return nullptr;
+    return iter->second;
+  };
+  for (int i = 1; i < argc; i++) {
+    auto ArgX = argv[i];
+    if (ArgX[0] == '-') {
 
-		}
-		else {
-			auto impl = Isbuiltin(ArgX);
-			i++;
-			if (impl != nullptr)
-				return impl(argc - i, argv + i);
-			return ExternalCommand(ArgX, argc - i, argv + i);
-		}
-	}
-	return blazehelp(argc, argv);
+    } else {
+      auto impl = Isbuiltin(ArgX);
+      i++;
+      if (impl != nullptr)
+        return impl(argc - i, argv + i);
+      return ExternalCommand(ArgX, argc - i, argv + i);
+    }
+  }
+  return blazehelp(argc, argv);
 }

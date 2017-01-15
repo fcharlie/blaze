@@ -65,6 +65,34 @@ private:
   void Finalize(){}
 };
 
+struct WCharCaseCompare {
+	bool operator()(const wchar_t *left, const wchar_t *right) {
+		return _wcsicmp(left, right) == 0;
+	}
+};
+
+struct WCharCompare {
+	bool operator()(const wchar_t *left, const wchar_t *right)const {
+		return wcscmp(left, right) == 0;
+	}
+};
+
+struct WCharHash {
+	size_t operator()(const wchar_t *wstr)const {
+		auto l = wcslen(wstr) *2;
+		auto str = reinterpret_cast<const char*>(wstr);
+		auto end = str + l;
+		int seed = 131;//31  131 1313 13131131313 etc//
+		std::size_t hash = 0;
+		while (str<end)
+		{
+			hash = (hash * seed) + (*str);
+			str++;
+		}
+
+		return hash & (0x7FFFFFFF);
+	}
+};
 
 
 namespace console {

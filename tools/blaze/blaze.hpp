@@ -121,4 +121,25 @@ int BaseErrorMessagePrint(const wchar_t *format, ...);
 /// no colored
 int BaseMessagePrint(const wchar_t *format, ...);
 
+#ifdef _DEBUG
+#define DebugPrint BaseMessagePrint
+#else
+#ifdef _MSC_VER
+#define DebugPrint __noop
+#else
+namespace detail {
+	inline void consume() {}
+	template <typename T0, typename... T>
+	void consume(const T0 &t0, const T &... t) {
+		(void)t0;
+		consume(t...);
+	}
+}
+
+#define noop(...) (void)([&]() { detail::consume(__VA_ARGS__); })
+#define DebugPrint noop
+#endif
+
+#endif
+
 #endif

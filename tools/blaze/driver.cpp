@@ -128,49 +128,45 @@ int ExternalCommand(const wchar_t *cmd, int Argc, wchar_t **Argv) {
   return 0;
 }
 
-int ProcessMain(int Argc, wchar_t **Argv) {
-  BuiltinCommand cmds[] = {
-      //// built in commands
-      {L"search", blazesearch},
-      {L"help", blazehelp}, /// help command
-      {L"list", blazelist}, ////
-      {L"sync", blazesync},
-      {L"update", blazeupdate},
-      {L"install", blazeinstall},
-      {L"uninstall", blazeuninstall},
-      {L"initialize", blazeinitialize},
-      {L"uninitialize", blazeuninitialize}
-      ///
-  };
-  auto Isbuiltin = [&](const wchar_t *cmd_) -> decltype(cmds[0].impl) {
-    for (auto &c : cmds) {
-      if (wcscmp(c.cmd, cmd_) == 0)
-        return c.impl;
-    }
-    return nullptr;
-  };
-  for (int i = 1; i < Argc; i++) {
-    auto ArgX = Argv[i];
-    if (ArgX[0] == '-') {
-
-    } else {
-      auto impl = Isbuiltin(ArgX);
-      i++;
-      if (impl != nullptr)
-        return impl(Argc - i, Argv + i);
-      return ExternalCommand(ArgX, Argc - i, Argv + i);
-    }
-  }
-  return 0;
+/// initialize environment
+bool blazeinit() {
+	///
+	return true;
 }
 
 int wmain(int argc, wchar_t **argv) {
-  ///
-  // if (argc >= 3) {
-  //	ZipDecompressArchive(argv[1], argv[2]);
-  //}
-  ////PrintUsage();
-  // RepositoriesInstalled rid;
-  // rid.Discover(L"repositories.installed.json");
-  return ProcessMain(argc, argv);
+	BuiltinCommand cmds[] = {
+		//// built in commands
+		{ L"search", blazesearch },
+		{ L"help", blazehelp }, /// help command
+		{ L"list", blazelist }, ////
+		{ L"sync", blazesync },
+		{ L"update", blazeupdate },
+		{ L"install", blazeinstall },
+		{ L"uninstall", blazeuninstall },
+		{ L"initialize", blazeinitialize },
+		{ L"uninitialize", blazeuninitialize }
+		///
+	};
+	auto Isbuiltin = [&](const wchar_t *cmd_) -> decltype(cmds[0].impl) {
+		for (auto &c : cmds) {
+			if (wcscmp(c.cmd, cmd_) == 0)
+				return c.impl;
+		}
+		return nullptr;
+	};
+	for (int i = 1; i < argc; i++) {
+		auto ArgX = argv[i];
+		if (ArgX[0] == '-') {
+
+		}
+		else {
+			auto impl = Isbuiltin(ArgX);
+			i++;
+			if (impl != nullptr)
+				return impl(argc - i, argv + i);
+			return ExternalCommand(ArgX, argc - i, argv + i);
+		}
+	}
+	return blazehelp(argc, argv);
 }

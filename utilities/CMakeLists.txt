@@ -85,6 +85,43 @@ ADD_MSVC_PRECOMPILED_HEADER("rar.hpp" "rarpch.cpp" ${LIBUNRARSOURCES})
 add_library(unrar SHARED 
     ${LIBUNRARSOURCES}
 )
+
+
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    add_definitions(-DBZ_DEBUG) # enable extra assertions
+endif()
+
+set(LIBBZ2_SOURCES
+    bzip2/blocksort.c
+    bzip2/huffman.c
+    bzip2/crctable.c
+    bzip2/randtable.c
+    bzip2/compress.c
+    bzip2/decompress.c
+    bzip2/bzlib.c)
+
+add_library(libbz2 ${LIBBZ2_SOURCES})
+set_target_properties(libbz2 PROPERTIES ARCHIVE_OUTPUT_NAME bz2) # reqiured for FindBzip2 to work
+if(BUILD_SHARED_LIBS)
+    target_compile_definitions(libbz2 PRIVATE -DBZ_BUILD_DLL)
+endif()
+
+install(TARGETS libbz2
+    RUNTIME DESTINATION bin
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib)
+
+if(NOT BZIP2_SKIP_TOOLS)
+    add_executable(bzip2 bzip2/bzip2.c ${LIBBZ2_SOURCES})
+    add_executable(bzip2recover bzip2/bzip2recover.c ${LIBBZ2_SOURCES})
+    install(TARGETS bzip2 bzip2recover DESTINATION tools)
+endif()
+
+if(NOT BZIP2_SKIP_HEADERS)
+    install(FILES bzip2/bzlib.h DESTINATION include)
+endif()
+
+
 # if (MSVC)
 #    set_target_properties(unrar PROPERTIES COMPILE_FLAGS "/Yurar.hpp")
 #    set_source_files_properties(dll.cpp PROPERTIES COMPILE_FLAGS "/Ycrar.hpp")

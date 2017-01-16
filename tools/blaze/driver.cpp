@@ -6,11 +6,6 @@
 #include "package.hpp"
 #include "archive.hpp"
 
-struct BuiltinCommand {
-  const wchar_t *cmd;
-  int (*impl)(int, wchar_t **);
-};
-
 /*
 blaze Windows Portable Package Manager
 Usage: blaze [command] [arguments] [commom-options]
@@ -21,6 +16,8 @@ update
 reinitialize
 uninitialize
 */
+
+bool verbose = false;
 
 inline bool IsArg(const wchar_t *candidate, const wchar_t *longname) {
   if (wcscmp(candidate, longname) == 0)
@@ -135,34 +132,42 @@ bool blazeinit() {
   return true;
 }
 
+typedef int(*EnCommand)(int, wchar_t **);
+
+EnCommand BuiltinResolve(const wchar_t *cmd) {
+	std::unordered_map<const wchar_t *, EnCommand, WCharHash, WCharCompare>
+		cmds = {
+		//// built in commands
+			{ L"search", blazesearch },
+			{ L"help", blazehelp }, /// help command
+			{ L"list", blazelist }, ////
+			{ L"sync", blazesync },
+			{ L"update", blazeupdate },
+			{ L"install", blazeinstall },
+			{ L"uninstall", blazeuninstall },
+			{ L"initialize", blazeinitialize },
+			{ L"uninitialize", blazeuninitialize }
+			///
+	};
+	auto iter = cmds.find(cmd);
+	if (iter == cmds.end())
+		return nullptr;
+	return iter->second;
+}
+
+bool InitializeFlags(const wchar_t *arg) {
+	return true;
+}
+
 int wmain(int argc, wchar_t **argv) {
-  typedef int (*CommandMain)(int, wchar_t **);
-  std::unordered_map<const wchar_t *, CommandMain, WCharHash, WCharCompare>
-      cmds = {
-          //// built in commands
-          {L"search", blazesearch},
-          {L"help", blazehelp}, /// help command
-          {L"list", blazelist}, ////
-          {L"sync", blazesync},
-          {L"update", blazeupdate},
-          {L"install", blazeinstall},
-          {L"uninstall", blazeuninstall},
-          {L"initialize", blazeinitialize},
-          {L"uninitialize", blazeuninitialize}
-          ///
-      };
-  auto Isbuiltin = [&](const wchar_t *cmd_) -> CommandMain {
-    auto iter = cmds.find(cmd_);
-    if (iter == cmds.end())
-      return nullptr;
-    return iter->second;
-  };
   for (int i = 1; i < argc; i++) {
     auto ArgX = argv[i];
     if (ArgX[0] == '-') {
-
+		if (InitializeFlags(ArgX))
+			continue;
+		BaseErrorMessagePrint(L"Invailed argument: %s\n", ArgX);
     } else {
-      auto impl = Isbuiltin(ArgX);
+      auto impl = BuiltinResolve(ArgX);
       i++;
       if (impl != nullptr)
         return impl(argc - i, argv + i);

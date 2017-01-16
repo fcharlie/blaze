@@ -132,40 +132,48 @@ bool blazeinit() {
   return true;
 }
 
-typedef int(*EnCommand)(int, wchar_t **);
+typedef int (*EnCommand)(int, wchar_t **);
 
 EnCommand BuiltinResolve(const wchar_t *cmd) {
-	std::unordered_map<const wchar_t *, EnCommand, WCharHash, WCharCompare>
-		cmds = {
-		//// built in commands
-			{ L"search", blazesearch },
-			{ L"help", blazehelp }, /// help command
-			{ L"list", blazelist }, ////
-			{ L"sync", blazesync },
-			{ L"update", blazeupdate },
-			{ L"install", blazeinstall },
-			{ L"uninstall", blazeuninstall },
-			{ L"initialize", blazeinitialize },
-			{ L"uninitialize", blazeuninitialize }
-			///
-	};
-	auto iter = cmds.find(cmd);
-	if (iter == cmds.end())
-		return nullptr;
-	return iter->second;
+  std::unordered_map<const wchar_t *, EnCommand, WCharHash, WCharCompare> cmds =
+      {
+          //// built in commands
+          {L"search", blazesearch},
+          {L"help", blazehelp}, /// help command
+          {L"list", blazelist}, ////
+          {L"sync", blazesync},
+          {L"update", blazeupdate},
+          {L"install", blazeinstall},
+          {L"uninstall", blazeuninstall},
+          {L"initialize", blazeinitialize},
+          {L"uninitialize", blazeuninitialize}
+          ///
+      };
+  auto iter = cmds.find(cmd);
+  if (iter == cmds.end())
+    return nullptr;
+  return iter->second;
 }
 
 bool InitializeFlags(const wchar_t *arg) {
-	return true;
+  if (wcsncmp(L"-V", arg, 2) == 0 || wcscmp(L"--verbose", arg) == 0) {
+    verbose = true;
+    return true;
+  } else if (wcsncmp(L"-v", arg, 2) == 0 || wcscmp(L"--version", arg) == 0) {
+    /// print version
+    BaseMessagePrint(L"%s\n", L"1.0.0.1");
+    ExitProcess(0);
+  }
+  return false;
 }
 
 int wmain(int argc, wchar_t **argv) {
   for (int i = 1; i < argc; i++) {
     auto ArgX = argv[i];
     if (ArgX[0] == '-') {
-		if (InitializeFlags(ArgX))
-			continue;
-		BaseErrorMessagePrint(L"Invailed argument: %s\n", ArgX);
+      if (InitializeFlags(ArgX))
+        continue;
+      BaseErrorMessagePrint(L"Invailed argument: %s\n", ArgX);
     } else {
       auto impl = BuiltinResolve(ArgX);
       i++;

@@ -18,6 +18,7 @@ uninitialize
 */
 
 bool verbose = false;
+std::wstring root;
 
 inline bool IsArg(const wchar_t *candidate, const wchar_t *longname) {
   if (wcscmp(candidate, longname) == 0)
@@ -58,7 +59,7 @@ Usage: blaze [command] [arguments] [commom-options]
     uninstall
     sync
     update
-    reinitialize
+    initialize
     uninitialize
     help
     -V
@@ -75,9 +76,10 @@ int blazelist(int Argc, wchar_t **Argv) {
 int blazesearch(int Argc, wchar_t **Argv) {
   //// blaze search command
   if (Argc == 0) {
-    BaseErrorMessagePrint(L"usage: blaze search <package>\n");
+    BaseErrorMessagePrint(L"usage: blaze search package\n");
     return 1;
   }
+  ////
   return 0;
 }
 
@@ -92,15 +94,19 @@ int blazeupdate(int Argc, wchar_t **Argv) {
 }
 
 int blazeinstall(int Argc, wchar_t **Argv) {
-  ///
-  if (Argc >= 1) {
-    DebugPrint(L"Install package: %s\n", Argv[0]);
+  std::vector<std::wstring> pks;
+  for (int i = 0; i < Argc; i++) {
+    auto Arg = Argv[i];
+    if (Arg[0] == '-') {
+    } else {
+      pks.push_back(Arg);
+    }
   }
   return 0;
 }
 
-int blazeuninstall(int Argc, wchar_t **Argv) {
-  ////
+int blazeremove(int Argc, wchar_t **Argv) {
+  //// blaze remove --pure
   return 0;
 }
 
@@ -144,7 +150,7 @@ EnCommand BuiltinResolve(const wchar_t *cmd) {
           {L"sync", blazesync},
           {L"update", blazeupdate},
           {L"install", blazeinstall},
-          {L"uninstall", blazeuninstall},
+          {L"remove", blazeremove},
           {L"initialize", blazeinitialize},
           {L"uninitialize", blazeuninitialize}
           ///
@@ -155,25 +161,40 @@ EnCommand BuiltinResolve(const wchar_t *cmd) {
   return iter->second;
 }
 
-bool InitializeFlags(const wchar_t *arg) {
+int InitializeFlags(const wchar_t *arg, wchar_t *NextArg) {
   if (wcsncmp(L"-V", arg, 2) == 0 || wcscmp(L"--verbose", arg) == 0) {
     verbose = true;
-    return true;
+    return 0;
   } else if (wcsncmp(L"-v", arg, 2) == 0 || wcscmp(L"--version", arg) == 0) {
     /// print version
     BaseMessagePrint(L"%s\n", L"1.0.0.1");
     ExitProcess(0);
+  } else if (wcsncmp(L"-r", arg, 2) == 0 || wcscmp(L"--blaze-root", arg) == 0) {
+    if (!NextArg)
+      return -1;
+    // if (verbose) {
+    //  BaseMessagePrint(L"select blaze root: %s\n", NextArg);
+    //}
+    root.assign(NextArg);
+    return 1;
   }
-  return false;
+  return -1;
 }
 
 int wmain(int argc, wchar_t **argv) {
   for (int i = 1; i < argc; i++) {
     auto ArgX = argv[i];
     if (ArgX[0] == '-') {
-      if (InitializeFlags(ArgX))
-        continue;
-      BaseErrorMessagePrint(L"Invailed argument: %s\n", ArgX);
+      switch (InitializeFlags(ArgX, i + 1 < argc ? argv[i + 1] : nullptr)) {
+      case 0:
+        break;
+      case 1:
+        i++;
+        break;
+      case -1:
+        BaseErrorMessagePrint(L"Invailed argument: %s\n", ArgX);
+        return 1;
+      }
     } else {
       auto impl = BuiltinResolve(ArgX);
       i++;

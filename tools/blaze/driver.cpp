@@ -172,9 +172,6 @@ int FlagResolve(const wchar_t *Arg, wchar_t *nArg) {
   } else if (wcsncmp(L"-r", Arg, 2) == 0 || wcscmp(L"--blaze-root", Arg) == 0) {
     if (!nArg)
       return -1;
-    // if (verbose) {
-    //  BaseMessagePrint(L"select blaze root: %s\n", NextArg);
-    //}
     root.assign(nArg);
     return 1;
   }

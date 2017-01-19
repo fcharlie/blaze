@@ -62,61 +62,17 @@ private:
   void Finalize() {}
 };
 
-struct WCharCaseCompare {
+struct CharCaseCompareW {
   bool operator()(const wchar_t *left, const wchar_t *right) {
     return _wcsicmp(left, right) == 0;
   }
 };
 
-struct WCharCompare {
+struct CharCompareW {
   bool operator()(const wchar_t *left, const wchar_t *right) const {
     return wcscmp(left, right) == 0;
   }
 };
-
-template<class _Size>
-inline _Size
-__loadword(const void* __p)
-{
-	_Size __r;
-	std::memcpy(&__r, __p, sizeof(__r));
-	return __r;
-}
-
-inline size_t HashInternalEx(const void *__key,
-	size_t __len) noexcept {
-#if defined(_WIN64)
-#else
-	const size_t __m = 0x5bd1e995;
-	const size_t __r = 24;
-	size_t __h = __len;
-	const unsigned char* __data = static_cast<const unsigned char*>(__key);
-	for (; __len >= 4; __data += 4, __len -= 4)
-	{
-		size_t __k = __loadword<size_t>(__data);
-		__k *= __m;
-		__k ^= __k >> __r;
-		__k *= __m;
-		__h *= __m;
-		__h ^= __k;
-	}
-	switch (__len)
-	{
-	case 3:
-		__h ^= __data[2] << 16;
-	case 2:
-		__h ^= __data[1] << 8;
-	case 1:
-		__h ^= __data[0];
-		__h *= __m;
-	}
-	__h ^= __h >> 13;
-	__h *= __m;
-	__h ^= __h >> 15;
-#endif
-	return 0;
-}
-
 
 inline size_t HashInternal(const unsigned char *data,
                                size_t length) noexcept {
@@ -140,26 +96,12 @@ inline size_t HashInternal(const unsigned char *data,
   return val;
 }
 
-struct WCharHash {
+struct CharHashW {
   size_t operator()(const wchar_t *wstr) const {
     auto src = reinterpret_cast<const unsigned char *>(wstr);
     auto length = wcslen(wstr) * 2;
     return HashInternal(src, length);
   }
-  // size_t operator()(const wchar_t *wstr)const {
-  //	auto l = wcslen(wstr) *2;
-  //	auto str = reinterpret_cast<const char*>(wstr);
-  //	auto end = str + l;
-  //	int seed = 131;//31  131 1313 13131131313 etc//
-  //	std::size_t hash = 0;
-  //	while (str<end)
-  //	{
-  //		hash = (hash * seed) + (*str);
-  //		str++;
-  //	}
-
-  //	return hash & (0x7FFFFFFF);
-  //}
 };
 
 namespace console {

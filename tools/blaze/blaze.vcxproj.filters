@@ -77,6 +77,9 @@
     <ClInclude Include="unrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hash.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="blaze.manifest">

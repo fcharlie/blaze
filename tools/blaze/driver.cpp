@@ -141,7 +141,7 @@ bool blazeinit() {
 typedef int (*EnCommand)(int, wchar_t **);
 
 EnCommand BuiltinResolve(const wchar_t *cmd) {
-  std::unordered_map<const wchar_t *, EnCommand, WCharHash, WCharCompare> cmds =
+  std::unordered_map<const wchar_t *, EnCommand, CharHashW, CharCompareW> cmds =
       {
           //// built in commands
           {L"search", blazesearch},

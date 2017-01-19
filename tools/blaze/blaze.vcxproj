@@ -179,6 +179,7 @@
     <ClInclude Include="archive.hpp" />
     <ClInclude Include="blaze.hpp" />
     <ClInclude Include="download.hpp" />
+    <ClInclude Include="hash.hpp" />
     <ClInclude Include="package.hpp" />
     <ClInclude Include="unrar.h" />
   </ItemGroup>

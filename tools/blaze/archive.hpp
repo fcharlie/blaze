@@ -17,7 +17,7 @@ public:
 	bool Initialize();
 	bool Decompress(const wchar_t *format,const std::wstring &file, const std::wstring &dir);
 private:
-	std::unordered_map<const wchar_t*, DecompressImpl, WCharHash, WCharCompare> decompressProvider;
+	std::unordered_map<const wchar_t*, DecompressImpl, CharHashW, CharCompareW> decompressProvider;
 };
 
 #endif

@@ -1,5 +1,5 @@
 {
     "Title":"Blaze - Windows Portable Package Manager",
     "Version":"1.0.0.0",
-	"Remote":"https://blaze.net/repositories.json"
+	"PackagesDir":"pkgs"
 }

@@ -20,6 +20,14 @@ uninitialize
 bool verbose = false;
 std::wstring root;
 
+bool IsVerbose() {
+	return verbose;
+}
+
+const std::wstring &BlazeRoot() {
+	return root;
+}
+
 inline bool IsArg(const wchar_t *candidate, const wchar_t *longname) {
   if (wcscmp(candidate, longname) == 0)
     return true;
@@ -161,7 +169,7 @@ EnCommand BuiltinResolve(const wchar_t *cmd) {
   return iter->second;
 }
 
-int FlagResolve(const wchar_t *Arg, wchar_t *nArg) {
+int CommandPatternResolve(const wchar_t *Arg, wchar_t *nArg) {
   if (wcsncmp(L"-V", Arg, 2) == 0 || wcscmp(L"--verbose", Arg) == 0) {
     verbose = true;
     return 0;
@@ -182,7 +190,7 @@ int wmain(int argc, wchar_t **argv) {
   for (int i = 1; i < argc; i++) {
     auto Arg = argv[i];
     if (Arg[0] == '-') {
-      switch (FlagResolve(Arg, i + 1 < argc ? argv[i + 1] : nullptr)) {
+      switch (CommandPatternResolve(Arg, i + 1 < argc ? argv[i + 1] : nullptr)) {
       case 0:
         break;
       case 1:

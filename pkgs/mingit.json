@@ -1,0 +1,10 @@
+{
+    "Title": "Mini Git Environment",
+    "URL32": "https://npm.taobao.org/mirrors/git-for-windows/2.11.1.windows.1/MinGit-2.11.1-32-bit.zip",
+    "URL64": "https://npm.taobao.org/mirrors/git-for-windows/2.11.1.windows.1/MinGit-2.11.1-64-bit.zip",
+    "Extension": "zip",
+    "Version": "2.11.1",
+    "Linked": [
+        "cmd/git.exe"
+    ]
+}

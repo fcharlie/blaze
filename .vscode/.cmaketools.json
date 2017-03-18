@@ -6,5 +6,7 @@
     },
     "description": "Enable optimizations, omit debug info"
   },
-  "activeEnvironments": []
+  "activeEnvironments": [
+    "Visual C++ 14.0 - amd64"
+  ]
 }

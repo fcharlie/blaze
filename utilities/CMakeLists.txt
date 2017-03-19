@@ -122,6 +122,7 @@ if(NOT BZIP2_SKIP_HEADERS)
 endif()
 
 add_subdirectory(rhash)
+add_subdirectory(keccak)
 # if (MSVC)
 #    set_target_properties(unrar PROPERTIES COMPILE_FLAGS "/Yurar.hpp")
 #    set_source_files_properties(dll.cpp PROPERTIES COMPILE_FLAGS "/Ycrar.hpp")

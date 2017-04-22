@@ -6,7 +6,6 @@
 
 #define MinWarp(a,b) ((b<a)?b:a)
 
-#pragma comment(lib,"winhttp.lib")
 #define BLAZE_USERAGENT  L"Blaze/1.0"
 #ifdef _WIN64
 #define MOZ_USERAGENT L"Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -182,7 +181,7 @@ bool DownloadArchive(const std::wstring &url, std::wstring &localFile, const Bla
 		total += dwSize;
 		if (dwContentLength > 0) {
 			if (pg.impl) {
-				pg.impl(pg.userdata,total * 100 / dwContentLength,total);
+				pg.impl(pg.userdata, (uint32_t)(total * 100 / dwContentLength), total);
 			}
 		}
 		auto dwSizeN = dwSize;

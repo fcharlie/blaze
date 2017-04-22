@@ -79,3 +79,36 @@ int BaseMessagePrint(const wchar_t *format, ...) {
 	//WriteConsoleW(h)
 	return (int)dwWrite;
 }
+
+void DoProgress(const std::wstring &label, int step, int total)
+{
+	//progress width
+
+	const int pwidth = 72;
+
+	//minus label len
+
+	int width = pwidth - label.size();
+	int pos = (step * width) / total;
+
+
+	int percent = (step * 100) / total;
+
+	//set green text color, only on Windows
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
+	wprintf(L"%s[", label.data());
+
+	//fill progress bar with =
+
+	for (int i = 0; i < pos; i++)  wprintf(L"%c", '#');
+
+	//fill progress bar with spaces
+
+	wprintf(L"% *c", width - pos + 1, ']');
+	wprintf(L" %3d%%\r", percent);
+
+	//reset text color, only on Windows
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x08);
+}

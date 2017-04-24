@@ -23,6 +23,7 @@
     <ProjectGuid>{C5B457F5-FA1C-4558-8A9A-3961AA938648}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>blazelink</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

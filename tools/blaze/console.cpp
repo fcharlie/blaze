@@ -1,8 +1,9 @@
-#include "blaze.hpp"
+#include "console.hpp"
 #include <wincon.h>
 #include <array>
 #include <PathCch.h>
 #include <io.h>
+
 
 int BaseWriteConhostEx(HANDLE hConsole, WORD color, const wchar_t *buf, size_t len) {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -111,4 +112,42 @@ void DoProgress(const std::wstring &label, int step, int total)
 	//reset text color, only on Windows
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x08);
+}
+
+ProgressBar::ProgressBar(const std::wstring &title)
+{
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	coord = csbi.dwCursorPosition;
+	SetCursorPosition(left, coord.Y);
+	DWORD dwWrite = 0;
+	WriteConsoleW(hConsole, title.data(), (DWORD)title.size(), &dwWrite, nullptr);
+	SetCursorPosition(left, coord.Y + 1);
+	oldcolor = csbi.wAttributes;
+	SetConsoleTextAttribute(hConsole, bkcolor);
+	std::wstring wstr(backlen, L' ');
+	WriteConsoleW(hConsole, wstr.data(), wstr.size(), &dwWrite, nullptr);
+	SetConsoleTextAttribute(hConsole, oldcolor);
+	printf("\n");
+}
+
+void ProgressBar::Update(int64_t current, int64_t total, const std::wstring & msg)
+{
+	int i = (int)ceil(current / (double)total * 100);
+	SetCursorPosition(left, coord.Y + 1);
+	int count = (int)ceil((double)i / 100 * backlen);
+	wchar_t buf[20];
+	auto N=swprintf_s(buf, L" %d%% ",i);
+	SetConsoleTextAttribute(hConsole, fccolor);
+	DWORD dwWrite = 0;
+	std::wstring wstr(count, L' ');
+	WriteConsoleW(hConsole, wstr.data(), wstr.size(), &dwWrite, nullptr);
+	SetCursorPosition(left + backlen + 1, coord.Y + 1);
+	SetConsoleTextAttribute(hConsole, oldcolor);
+	WriteConsoleW(hConsole, buf, N, &dwWrite, nullptr);
+	SetCursorPosition(left + (backlen / 2 - msg.size()), coord.Y + 2);
+	WriteConsoleW(hConsole, msg.data(), msg.size(), &dwWrite, nullptr);
+	if (i >= 100)
+		printf("\n");
 }

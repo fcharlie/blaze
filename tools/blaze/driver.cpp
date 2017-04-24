@@ -187,6 +187,19 @@ int CommandPatternResolve(const wchar_t *Arg, wchar_t *nArg) {
 }
 
 int wmain(int argc, wchar_t **argv) {
+	///
+	//printf("Progress Bar test:\n");
+	//ProgressBar bar(L"download 7zip.exe ...");
+	//wchar_t buf[100];
+	//auto x = rand() % 1000 + 100;
+	//for (int i = 0; i < x; i++) {
+	//	Sleep(50);
+	//	swprintf_s(buf, L"%d/%d", i, x);
+	//	bar.Update(i, x, buf);
+	//}
+	//system("pause");
+	//return 0;
+
   for (int i = 1; i < argc; i++) {
     auto Arg = argv[i];
     if (Arg[0] == '-') {

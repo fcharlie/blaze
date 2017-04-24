@@ -22,7 +22,7 @@
     <ProjectGuid>{E99765C7-3F91-4161-9248-6E87315AD932}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>blazearchive</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

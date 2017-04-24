@@ -52,8 +52,8 @@ private:
   size_t size_;
 };
 
-struct BlazeProgress {
-  bool (*impl)(void *data, std::uint32_t rate, std::uint64_t bytes);
+struct ProgressInvoke {
+  bool (*impl)(void *data, std::uint64_t current, std::uint64_t total);
   void *userdata;
 };
 

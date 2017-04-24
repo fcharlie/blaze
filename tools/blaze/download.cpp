@@ -81,7 +81,7 @@ private:
 	HINTERNET hInternet_;
 };
 
-bool DownloadArchive(const std::wstring &url, std::wstring &localFile, const BlazeProgress &pg) {
+bool DownloadArchive(const std::wstring &url, std::wstring &localFile, const ProgressInvoke &pg) {
 	Uri uri;
 	if (!uri.Parse(url)) {
 		BaseErrorMessagePrint(L"Wrong URL: %s\n", url.c_str());
@@ -181,7 +181,7 @@ bool DownloadArchive(const std::wstring &url, std::wstring &localFile, const Bla
 		total += dwSize;
 		if (dwContentLength > 0) {
 			if (pg.impl) {
-				pg.impl(pg.userdata, (uint32_t)(total * 100 / dwContentLength), total);
+				pg.impl(pg.userdata, total, dwContentLength);
 			}
 		}
 		auto dwSizeN = dwSize;

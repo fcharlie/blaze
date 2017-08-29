@@ -1,4 +1,4 @@
-// Copyright (c) 2013 GitHub, Inc. All rights reserved.
+﻿// Copyright (c) 2013 GitHub, Inc. All rights reserved.
 // Use of this source code is governed by MIT license that can be found in the
 // LICENSE file.
 //
@@ -11,6 +11,8 @@
 #include <atlstr.h>
 #include <sstream> // wstringstream
 #include <iomanip> // setw, setfill
+#include <fstream>
+#include <codecvt>
 
 namespace rescle {
 
@@ -155,7 +157,7 @@ std::vector<BYTE> VersionInfo::Serialize()
   {
     auto size = sizeof(VS_FIXEDFILEINFO);
     versionInfo.wValueLength = size;
-    
+
     auto& dst = versionInfo.Value;
     dst.resize(size);
 
@@ -198,7 +200,7 @@ std::vector<BYTE> VersionInfo::Serialize()
         dst.resize(size);
 
         auto src = stringValue.c_str();
-        
+
         memcpy(&dst[0], src, size);
 
         stringTableRaw.Children.push_back(std::move(stringRaw));
@@ -209,7 +211,7 @@ std::vector<BYTE> VersionInfo::Serialize()
 
     versionInfo.Children.push_back(std::move(stringFileInfo));
   }
-  
+
   {
     VersionStampValue varFileInfo;
     varFileInfo.szKey = L"VarFileInfo";
@@ -438,8 +440,29 @@ bool ResourceUpdater::Load(const WCHAR* filename) {
   EnumResourceNamesW(hModule, RT_VERSION, OnEnumResourceName, reinterpret_cast<LONG_PTR>(this));
   EnumResourceNamesW(hModule, RT_GROUP_ICON, OnEnumResourceName, reinterpret_cast<LONG_PTR>(this));
   EnumResourceNamesW(hModule, RT_ICON, OnEnumResourceName, reinterpret_cast<LONG_PTR>(this));
+  EnumResourceNamesW(hModule, RT_MANIFEST, OnEnumResourceManifest, reinterpret_cast<LONG_PTR>(this));
 
   return true;
+}
+
+bool ResourceUpdater::SetExecutionLevel(const WCHAR* value) {
+  executionLevel = value;
+  return true;
+}
+
+bool ResourceUpdater::IsExecutionLevelSet()
+{
+  return !executionLevel.empty();
+}
+
+bool ResourceUpdater::SetApplicationManifest(const WCHAR* value) {
+  applicationManifestPath = value;
+  return true;
+}
+
+bool ResourceUpdater::IsApplicationManifestSet()
+{
+  return !applicationManifestPath.empty();
 }
 
 bool ResourceUpdater::SetVersionString(const WORD& languageId, const WCHAR* name, const WCHAR* value) {
@@ -618,6 +641,15 @@ bool ResourceUpdater::SetIcon(const WCHAR* path) {
   return SetIcon(path, langId);
 }
 
+std::wstring readFile(const wchar_t* filename)
+{
+  std::wifstream wif(filename);
+  wif.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+  std::wstringstream wss;
+  wss << wif.rdbuf();
+  return wss.str();
+}
+
 bool ResourceUpdater::Commit() {
   if (hModule == NULL) {
     return false;
@@ -642,6 +674,90 @@ bool ResourceUpdater::Commit() {
       , MAKEINTRESOURCEW(1)
       , langId
       , &out[0], static_cast<DWORD>(out.size()))) {
+
+      return false;
+    }
+  }
+
+  // update the execution level
+  if (applicationManifestPath.empty() && !executionLevel.empty())
+  {
+    // string replace with requested executionLevel
+    std::wstring::size_type pos = 0u;
+    while ((pos = manifestString.find(original_executionLevel, pos)) != std::string::npos) {
+      manifestString.replace(pos, original_executionLevel.length(), executionLevel);
+      pos += executionLevel.length();
+    }
+
+    // clean old padding and add new padding, ensuring that the size is a multiple of 4
+    std::wstring::size_type padPos = manifestString.find(L"</assembly>");
+    // trim anything after the </assembly>, 11 being the length of </assembly> (ie, remove old padding)
+    std::wstring trimmedStr = manifestString.substr(0, padPos + 11);
+    std::wstring padding = L"\n<!--Padding to make filesize even multiple of 4 X -->";
+
+    int offset = (trimmedStr.length() + padding.length()) % 4;
+    // multiple X by the number in offset
+    pos = 0u;
+    for (int posCount = 0; posCount < offset; posCount = posCount + 1)
+    {
+      if ((pos = padding.find(L"X", pos)) != std::string::npos) {
+        padding.replace(pos, 1, L"XX");
+        pos += executionLevel.length();
+      }
+    }
+
+    // convert the wchar back into char, so that it encodes correctly for Windows to read the XML.
+    std::vector<char> stringSection;
+    stringSection.clear();
+    stringSection.insert(stringSection.end(), trimmedStr.begin(), trimmedStr.end());
+    stringSection.insert(stringSection.end(), padding.begin(), padding.end());
+
+    if (!UpdateResourceW
+    (ru.Get()
+      , RT_MANIFEST
+      , MAKEINTRESOURCEW(1)
+      , 1033 // this is hardcoded at 1033, ie, en-us, as that is what RT_MANIFEST default uses
+      , &stringSection.at(0), sizeof(char) * stringSection.size())) {
+
+      return false;
+    }
+  }
+
+  // load file contents and replace the manifest
+  if (!applicationManifestPath.empty())
+  {
+    std::wstring fileContents = readFile(applicationManifestPath.c_str());
+
+    // clean old padding and add new padding, ensuring that the size is a multiple of 4
+    std::wstring::size_type padPos = fileContents.find(L"</assembly>");
+    // trim anything after the </assembly>, 11 being the length of </assembly> (ie, remove old padding)
+    std::wstring trimmedStr = fileContents.substr(0, padPos + 11);
+    std::wstring padding = L"\n<!--Padding to make filesize even multiple of 4 X -->";
+
+    int offset = (trimmedStr.length() + padding.length()) % 4;
+    // multiple X by the number in offset
+    std::wstring::size_type pos = 0u;
+    for (int posCount = 0; posCount < offset; posCount = posCount + 1)
+    {
+      if ((pos = padding.find(L"X", pos)) != std::string::npos) {
+        padding.replace(pos, 1, L"XX");
+        pos += executionLevel.length();
+      }
+    }
+
+    // convert the wchar back into char, so that it encodes correctly for Windows to read the XML.
+    std::vector<char> stringSection;
+    stringSection.clear();
+    stringSection.insert(stringSection.end(), fileContents.begin(), fileContents.end());
+    stringSection.insert(stringSection.end(), padding.begin(), padding.end());
+
+    if (!UpdateResourceW
+    (ru.Get()
+      , RT_MANIFEST
+      , MAKEINTRESOURCEW(1)
+      , 1033 // this is hardcoded at 1033, ie, en-us, as that is what RT_MANIFEST default uses
+      , &stringSection.at(0), sizeof(char) * stringSection.size())) {
+
       return false;
     }
   }
@@ -804,16 +920,13 @@ bool ResourceUpdater::SerializeStringTable(const StringValues& values, const UIN
   return true;
 }
 
-//#define MAKEINTRESOURCEW(i) ((LPWSTR)((ULONG_PTR)((WORD)(i))))
-#define RCSOURCE_INDEX(i) ((WORD)((ULONG_PTR)((LPWSTR)(i))))
-
 // static
 BOOL CALLBACK ResourceUpdater::OnEnumResourceLanguage(HANDLE hModule, LPCWSTR lpszType, LPCWSTR lpszName, WORD wIDLanguage, LONG_PTR lParam) {
   ResourceUpdater* instance = reinterpret_cast<ResourceUpdater*>(lParam);
   if (IS_INTRESOURCE(lpszName) && IS_INTRESOURCE(lpszType)) {
-	switch (RCSOURCE_INDEX(lpszType))
+    switch (reinterpret_cast<UINT>(lpszType))
     {
-      case RCSOURCE_INDEX(RT_VERSION):
+    case reinterpret_cast<UINT>(RT_VERSION):
       {
         try
         {
@@ -821,12 +934,11 @@ BOOL CALLBACK ResourceUpdater::OnEnumResourceLanguage(HANDLE hModule, LPCWSTR lp
         }
         catch (const std::system_error& e)
         {
-		 fprintf(stderr,"%s\n",e.what());
           return false;
         }
       }
       break;
-	  case RCSOURCE_INDEX(RT_STRING):
+    case reinterpret_cast<UINT>(RT_STRING):
 	  {
         UINT id = reinterpret_cast<UINT>(lpszName) - 1;
         auto& vector = instance->stringTableMap[wIDLanguage][id];
@@ -838,7 +950,7 @@ BOOL CALLBACK ResourceUpdater::OnEnumResourceLanguage(HANDLE hModule, LPCWSTR lp
         }
 	  }
       break;
-	  case RCSOURCE_INDEX(RT_ICON):
+    case reinterpret_cast<UINT>(RT_ICON):
       {
         auto iconId = reinterpret_cast<UINT>(lpszName);
         auto& maxIconId = instance->iconBundleMap[wIDLanguage].MaxIconId;
@@ -846,7 +958,7 @@ BOOL CALLBACK ResourceUpdater::OnEnumResourceLanguage(HANDLE hModule, LPCWSTR lp
           maxIconId = iconId;
       }
       break;
-	  case RCSOURCE_INDEX(RT_GROUP_ICON):
+    case reinterpret_cast<UINT>(RT_GROUP_ICON):
       instance->iconBundleMap[wIDLanguage].IconBundles[reinterpret_cast<UINT>(lpszName)] = nullptr;
       break;
     default:
@@ -860,6 +972,33 @@ BOOL CALLBACK ResourceUpdater::OnEnumResourceLanguage(HANDLE hModule, LPCWSTR lp
 BOOL CALLBACK ResourceUpdater::OnEnumResourceName(HMODULE hModule, LPCWSTR lpszType, LPWSTR lpszName, LONG_PTR lParam) {
   EnumResourceLanguagesW(hModule, lpszType, lpszName, (ENUMRESLANGPROCW) OnEnumResourceLanguage, lParam);
   return TRUE;
+}
+
+// courtesy of http://stackoverflow.com/questions/420852/reading-an-applications-manifest-file
+BOOL CALLBACK ResourceUpdater::OnEnumResourceManifest(HMODULE hModule, LPCTSTR lpType,
+  LPWSTR lpName, LONG_PTR lParam)
+{
+  ResourceUpdater* instance = reinterpret_cast<ResourceUpdater*>(lParam);
+  HRSRC hResInfo = FindResource(hModule, lpName, lpType);
+  DWORD cbResource = SizeofResource(hModule, hResInfo);
+
+  HGLOBAL hResData = LoadResource(hModule, hResInfo);
+  const BYTE *pResource = (const BYTE *)LockResource(hResData);
+
+  int len = strlen(reinterpret_cast<const char*>(pResource));
+  std::wstring manifestStringLocal(pResource, pResource + len);
+  size_t found = manifestStringLocal.find(L"requestedExecutionLevel");
+  size_t end = manifestStringLocal.find(L"uiAccess");
+
+  instance->original_executionLevel = manifestStringLocal.substr(found +31 , end - found - 33);
+
+  // also store original manifestString
+  instance->manifestString = manifestStringLocal;
+
+  UnlockResource(hResData);
+  FreeResource(hResData);
+
+  return TRUE;   // Keep going
 }
 
 ScopedResourceUpdater::ScopedResourceUpdater(const wchar_t* filename, const bool& deleteOld)
